@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Closer — The agentic work OS</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config={theme:{extend:{
+  colors:{ink:'#fbfbfd',panel:'#ffffff',line:'#ececf1',mut:'#5a5a68',acc:'#6d4aff',acc2:'#0891b2',ok:'#059669',warn:'#d97706',danger:'#e11d48'},
+  fontFamily:{sans:['Inter','ui-sans-serif','system-ui','sans-serif']}
+}}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  html{scroll-behavior:smooth}
+  body{font-family:Inter,sans-serif;color:#15151b;background:
+    radial-gradient(1100px 540px at 82% -8%, rgba(109,74,255,.10), transparent 60%),
+    radial-gradient(900px 480px at -8% 12%, rgba(8,145,178,.07), transparent 55%),#fbfbfd;}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .grad{background:linear-gradient(100deg,#6d4aff,#0891b2);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .gradbg{background:linear-gradient(135deg,#6d4aff,#0891b2)}
+  /* scroll reveal */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  .d1{transition-delay:.07s}.d2{transition-delay:.14s}.d3{transition-delay:.21s}.d4{transition-delay:.28s}.d5{transition-delay:.35s}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .floaty{animation:floaty 5s ease-in-out infinite}
+  @keyframes dash{to{stroke-dashoffset:-16}}
+  .flow{stroke-dasharray:5 6;animation:dash 1s linear infinite}
+  @keyframes pulse2{0%,100%{opacity:1}50%{opacity:.4}}
+  .blink{animation:pulse2 1.2s ease-in-out infinite}
+  @keyframes pop{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+  .pop{animation:pop .5s ease both}
+  @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+  .bar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#6d4aff,#0891b2)}
+  .glass{background:rgba(255,255,255,.7);backdrop-filter:blur(12px)}
+  .card-hover{transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+  .card-hover:hover{transform:translateY(-3px);box-shadow:0 18px 40px -22px rgba(40,30,90,.35);border-color:#dcd8f5}
+  ::selection{background:rgba(109,74,255,.18)}
+</style>
+</head>
+<body class="antialiased">
+
+<!-- NAV -->
+<header class="sticky top-0 z-50 glass border-b border-line">
+  <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="#top" class="flex items-center gap-2.5">
+      <span class="w-8 h-8 rounded-xl grid place-items-center text-white font-bold gradbg">✦</span>
+      <span class="font-extrabold tracking-tight text-[17px]">Closer</span>
+    </a>
+    <nav class="hidden md:flex items-center gap-8 text-sm text-mut">
+      <a href="#problem" class="hover:text-gray-900 transition">Problem</a>
+      <a href="#agents" class="hover:text-gray-900 transition">Agents</a>
+      <a href="#moment" class="hover:text-gray-900 transition">The moment</a>
+      <a href="#trust" class="hover:text-gray-900 transition">Trust</a>
+    </nav>
+    <a href="index.html" class="text-sm font-semibold text-white px-4 py-2 rounded-lg gradbg hover:brightness-110 transition shadow-sm">Launch Demo →</a>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- HERO -->
+<section class="max-w-6xl mx-auto px-6 pt-20 md:pt-28 pb-16 text-center">
+  <div class="reveal in inline-flex items-center gap-2 text-xs font-medium text-mut bg-white border border-line rounded-full px-3 py-1.5 mb-7 shadow-sm">
+    <span class="w-1.5 h-1.5 rounded-full gradbg"></span> The agentic work OS · built for the multi-agent hackathon
+  </div>
+  <h1 class="reveal in text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.05]">
+    Engineering teams don't<br class="hidden md:block"/> lose time building.<br/>
+    <span class="grad">They lose time figuring out what to build.</span>
+  </h1>
+  <p class="reveal in d1 max-w-2xl mx-auto text-mut text-lg mt-6 leading-relaxed">
+    Most work arrives as vague tickets — missing context, unclear ownership, hidden dependencies.
+    <span class="text-gray-900 font-medium"> Closer is an agentic work OS that turns one messy ticket into an execution-ready backlog</span> before an engineer ever has to ask a question.
+  </p>
+  <div class="reveal in d2 flex flex-wrap items-center justify-center gap-3 mt-8">
+    <a href="index.html" class="text-sm font-semibold text-white px-6 py-3 rounded-xl gradbg hover:brightness-110 transition shadow-md">Watch Closer Work</a>
+    <a href="index.html" class="text-sm font-semibold text-gray-900 px-6 py-3 rounded-xl bg-white border border-line hover:bg-gray-50 transition shadow-sm">See Interactive Demo →</a>
+  </div>
+
+  <!-- HERO VISUAL: transformation -->
+  <div class="reveal in d3 mt-16 grid md:grid-cols-[1fr,auto,1fr] gap-5 md:gap-3 items-center text-left">
+    <!-- messy ticket -->
+    <div class="bg-white border border-line rounded-2xl p-5 shadow-sm">
+      <div class="flex items-center justify-between mb-3">
+        <span class="mono text-xs text-mut">ENG-482</span>
+        <span class="text-[10px] px-2 py-0.5 rounded-full bg-danger/10 text-danger border border-danger/20">Not ready</span>
+      </div>
+      <div class="text-base font-semibold text-gray-900">Improve onboarding experience</div>
+      <div class="text-sm text-mut mt-1.5">Customers are complaining onboarding is confusing. Can someone improve it?</div>
+      <div class="grid grid-cols-3 gap-2 mt-4 text-center">
+        <div class="bg-ink border border-line rounded-lg py-2"><div class="text-[10px] text-mut">Status</div><div class="text-xs font-medium text-danger">Unclear</div></div>
+        <div class="bg-ink border border-line rounded-lg py-2"><div class="text-[10px] text-mut">Owner</div><div class="text-xs font-medium text-danger">Unknown</div></div>
+        <div class="bg-ink border border-line rounded-lg py-2"><div class="text-[10px] text-mut">Priority</div><div class="text-xs font-medium text-danger">None</div></div>
+      </div>
+      <div class="flex flex-wrap gap-1.5 mt-3">
+        <span class="text-[11px] px-2 py-0.5 rounded-full bg-danger/10 text-danger border border-danger/20">⚠ Missing requirements</span>
+        <span class="text-[11px] px-2 py-0.5 rounded-full bg-danger/10 text-danger border border-danger/20">⚠ Missing analytics</span>
+        <span class="text-[11px] px-2 py-0.5 rounded-full bg-danger/10 text-danger border border-danger/20">⚠ Missing stakeholders</span>
+        <span class="text-[11px] px-2 py-0.5 rounded-full bg-danger/10 text-danger border border-danger/20">⚠ Missing dependencies</span>
+      </div>
+    </div>
+    <!-- arrow -->
+    <div class="grid place-items-center py-2">
+      <svg width="64" height="40" viewBox="0 0 64 40" class="floaty"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#6d4aff"/><stop offset="1" stop-color="#0891b2"/></linearGradient></defs>
+        <line x1="4" y1="20" x2="50" y2="20" stroke="url(#g)" stroke-width="2.5" class="flow"/>
+        <path d="M48 12 L60 20 L48 28" fill="none" stroke="url(#g)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="text-[10px] text-mut mt-1 hidden md:block">Closer</span>
+    </div>
+    <!-- backlog -->
+    <div class="bg-white border border-acc/25 rounded-2xl p-5" style="box-shadow:0 24px 60px -30px rgba(109,74,255,.5)">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-[10px] px-2 py-0.5 rounded bg-acc/12 text-acc font-semibold">EPIC · ONB-100</span>
+        <span class="text-[10px] px-2 py-0.5 rounded-full bg-ok/10 text-ok border border-ok/20">Ready for development</span>
+      </div>
+      <div class="text-base font-semibold text-gray-900 mb-2">Improve onboarding completion</div>
+      <ul class="space-y-1.5">
+        <li class="flex items-center gap-2 text-sm text-gray-700"><span class="text-ok">✓</span>Add onboarding progress indicator</li>
+        <li class="flex items-center gap-2 text-sm text-gray-700"><span class="text-ok">✓</span>Simplify registration form</li>
+        <li class="flex items-center gap-2 text-sm text-gray-700"><span class="text-ok">✓</span>Rewrite onboarding copy</li>
+        <li class="flex items-center gap-2 text-sm text-gray-700"><span class="text-ok">✓</span>Emit funnel analytics events</li>
+        <li class="flex items-center gap-2 text-sm text-gray-700"><span class="text-ok">✓</span>Create A/B experiment</li>
+      </ul>
+      <div class="flex flex-wrap gap-1.5 mt-3">
+        <span class="text-[11px] px-2 py-0.5 rounded-full bg-acc/8 text-acc border border-acc/20">Owners assigned</span>
+        <span class="text-[11px] px-2 py-0.5 rounded-full bg-acc/8 text-acc border border-acc/20">Priority assigned</span>
+        <span class="text-[11px] px-2 py-0.5 rounded-full bg-acc/8 text-acc border border-acc/20">Dependencies mapped</span>
+      </div>
+      <div class="text-right text-xs text-mut mt-3">Created by <span class="grad font-bold">Closer</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem" class="max-w-6xl mx-auto px-6 py-20 md:py-28">
+  <h2 class="reveal text-3xl md:text-4xl font-extrabold tracking-tight text-center max-w-2xl mx-auto">The average engineering ticket is not ready for development.</h2>
+  <div class="grid md:grid-cols-[1.4fr,1fr] gap-8 mt-14 items-center">
+    <!-- timeline -->
+    <div class="reveal d1 relative pl-7">
+      <div class="absolute left-[9px] top-2 bottom-2 w-px bg-line"></div>
+      <div class="space-y-5">
+        <div class="relative"><span class="absolute -left-7 top-1 w-4 h-4 rounded-full bg-white border-2 border-mut"></span><div class="mono text-xs text-mut">Monday 09:00</div><div class="text-sm font-medium text-gray-900">PM creates a vague ticket</div></div>
+        <div class="relative"><span class="absolute -left-7 top-1 w-4 h-4 rounded-full bg-white border-2 border-warn"></span><div class="mono text-xs text-mut">Monday 11:00</div><div class="text-sm font-medium text-gray-900">Developer starts asking questions</div></div>
+        <div class="relative"><span class="absolute -left-7 top-1 w-4 h-4 rounded-full bg-white border-2 border-warn"></span><div class="mono text-xs text-mut">Tuesday</div><div class="text-sm font-medium text-gray-900">Analytics finally responds</div></div>
+        <div class="relative"><span class="absolute -left-7 top-1 w-4 h-4 rounded-full bg-white border-2 border-warn"></span><div class="mono text-xs text-mut">Wednesday</div><div class="text-sm font-medium text-gray-900">Design finally responds</div></div>
+        <div class="relative"><span class="absolute -left-7 top-1 w-4 h-4 rounded-full gradbg"></span><div class="mono text-xs text-mut">Thursday</div><div class="text-sm font-semibold text-gray-900">Development actually starts</div></div>
+      </div>
+    </div>
+    <!-- metric -->
+    <div class="reveal d2 bg-white border border-line rounded-2xl p-7 shadow-sm text-center">
+      <div class="text-sm text-mut mb-4">Where the week actually goes</div>
+      <div class="text-5xl font-extrabold text-danger">5 hrs</div>
+      <div class="text-sm text-mut mb-5">coordinating</div>
+      <div class="text-5xl font-extrabold grad">1 hr</div>
+      <div class="text-sm text-mut">building</div>
+      <div class="mt-6 h-2.5 rounded-full bg-ink overflow-hidden flex">
+        <div class="h-full bg-danger/70" style="width:83%"></div>
+        <div class="h-full gradbg" style="width:17%"></div>
+      </div>
+      <div class="flex justify-between text-[11px] text-mut mt-2"><span>Coordination</span><span>Build</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section class="bg-white border-y border-line">
+<div class="max-w-6xl mx-auto px-6 py-20 md:py-28">
+  <div class="text-center max-w-2xl mx-auto">
+    <h2 class="reveal text-3xl md:text-4xl font-extrabold tracking-tight">Closer coordinates before engineers do.</h2>
+    <p class="reveal d1 text-mut text-lg mt-4">A team of specialized agents gathers context, finds owners, discovers blockers, creates plans, and follows up — automatically.</p>
+  </div>
+  <div id="flow" class="reveal d2 mt-14 flex flex-wrap justify-center gap-3 max-w-4xl mx-auto"></div>
+</div>
+</section>
+
+<!-- AGENTS -->
+<section id="agents" class="max-w-6xl mx-auto px-6 py-20 md:py-28">
+  <div class="text-center max-w-2xl mx-auto mb-12">
+    <h2 class="reveal text-3xl md:text-4xl font-extrabold tracking-tight">Not one assistant. <span class="grad">A team.</span></h2>
+    <p class="reveal d1 text-mut text-lg mt-4">Eight agents, each with one job — running, talking, and acting in parallel.</p>
+  </div>
+  <div id="agentGrid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+</section>
+
+<!-- THE MOMENT -->
+<section id="moment" class="bg-white border-y border-line">
+<div class="max-w-6xl mx-auto px-6 py-20 md:py-28">
+  <h2 class="reveal text-3xl md:text-5xl font-extrabold tracking-tight text-center">From one sentence to a <span class="grad">sprint backlog.</span></h2>
+  <div class="grid md:grid-cols-2 gap-5 mt-14 items-stretch">
+    <div class="reveal d1 rounded-2xl border border-line bg-ink p-7 flex flex-col justify-center">
+      <div class="text-xs font-semibold tracking-widest text-danger mb-3">BEFORE</div>
+      <div class="text-2xl font-bold text-gray-700">Improve onboarding.</div>
+      <div class="text-sm text-mut mt-2">One sentence. No owners, no data, no plan.</div>
+    </div>
+    <div class="reveal d2 rounded-2xl border border-acc/25 bg-white p-7" style="box-shadow:0 24px 60px -32px rgba(109,74,255,.45)">
+      <div class="text-xs font-semibold tracking-widest text-ok mb-3">AFTER</div>
+      <ul class="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-700">
+        <li class="flex gap-2"><span class="text-ok">✓</span>Epic created</li>
+        <li class="flex gap-2"><span class="text-ok">✓</span>5 tasks generated</li>
+        <li class="flex gap-2"><span class="text-ok">✓</span>Owners assigned</li>
+        <li class="flex gap-2"><span class="text-ok">✓</span>Priorities assigned</li>
+        <li class="flex gap-2"><span class="text-ok">✓</span>Dependencies mapped</li>
+        <li class="flex gap-2"><span class="text-ok">✓</span>Implementation brief</li>
+        <li class="flex gap-2"><span class="text-ok">✓</span>GitHub issues drafted</li>
+        <li class="flex gap-2"><span class="text-ok">✓</span>Cursor prompt prepared</li>
+      </ul>
+      <div class="mt-4 inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg bg-ok/10 text-ok border border-ok/20 font-semibold">● Ready for development</div>
+    </div>
+  </div>
+  <div class="reveal d3 text-center mt-12">
+    <div class="text-4xl md:text-5xl font-extrabold tracking-tight"><span class="grad">90 seconds</span> instead of 2 days.</div>
+  </div>
+</div>
+</section>
+
+<!-- TRUST -->
+<section id="trust" class="max-w-6xl mx-auto px-6 py-20 md:py-28">
+  <div class="grid md:grid-cols-2 gap-12 items-center">
+    <div>
+      <h2 class="reveal text-3xl md:text-4xl font-extrabold tracking-tight">Human approval, built in.</h2>
+      <p class="reveal d1 text-mut text-lg mt-4">Closer never acts as a black box. Every recommendation can be reviewed, edited, approved, or rejected before any work is created.</p>
+      <div class="reveal d2 grid grid-cols-2 gap-2.5 mt-7">
+        <div class="bg-white border border-line rounded-xl px-3.5 py-3 text-sm font-medium text-gray-900">Confidence scores</div>
+        <div class="bg-white border border-line rounded-xl px-3.5 py-3 text-sm font-medium text-gray-900">Editable task titles</div>
+        <div class="bg-white border border-line rounded-xl px-3.5 py-3 text-sm font-medium text-gray-900">Owner reassignment</div>
+        <div class="bg-white border border-line rounded-xl px-3.5 py-3 text-sm font-medium text-gray-900">Priority controls</div>
+        <div class="bg-white border border-line rounded-xl px-3.5 py-3 text-sm font-medium text-gray-900 col-span-2">Approval checkboxes</div>
+      </div>
+    </div>
+    <!-- review mock -->
+    <div class="reveal d2 bg-white border border-line rounded-2xl p-4 shadow-sm">
+      <div class="text-xs text-mut mb-2 px-1">Review & approve before creating</div>
+      <div class="space-y-2">
+        <div class="flex items-center gap-2.5 border border-line rounded-lg px-3 py-2.5">
+          <span class="w-5 h-5 rounded-md bg-ok grid place-items-center text-white text-xs">✓</span>
+          <span class="text-sm text-gray-900 flex-1 truncate">Add onboarding progress indicator</span>
+          <span class="w-12 h-1.5 rounded-full bg-ink overflow-hidden bar"><i style="width:95%"></i></span>
+          <span class="text-[11px] font-medium text-ok">95%</span>
+        </div>
+        <div class="flex items-center gap-2.5 border border-line rounded-lg px-3 py-2.5">
+          <span class="w-5 h-5 rounded-md bg-ok grid place-items-center text-white text-xs">✓</span>
+          <span class="text-sm text-gray-900 flex-1 truncate">Simplify registration form <span class="text-[10px] text-danger">⛒ AUTH-204</span></span>
+          <span class="w-12 h-1.5 rounded-full bg-ink overflow-hidden bar"><i style="width:74%"></i></span>
+          <span class="text-[11px] font-medium text-warn">74%</span>
+        </div>
+        <div class="flex items-center gap-2.5 border border-line rounded-lg px-3 py-2.5 opacity-50">
+          <span class="w-5 h-5 rounded-md border border-line"></span>
+          <span class="text-sm text-gray-900 flex-1 truncate">Rewrite onboarding copy</span>
+          <span class="w-12 h-1.5 rounded-full bg-ink overflow-hidden bar"><i style="width:88%"></i></span>
+          <span class="text-[11px] font-medium text-mut">88%</span>
+        </div>
+      </div>
+      <div class="flex items-center justify-between mt-3 pt-3 border-t border-line">
+        <span class="text-xs text-mut">2 of 3 approved</span>
+        <span class="text-xs font-semibold text-white px-3 py-1.5 rounded-lg gradbg">Create tickets in ClickUp →</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="relative overflow-hidden border-t border-line">
+  <div class="absolute inset-0 -z-10" style="background:radial-gradient(800px 400px at 50% 0%, rgba(109,74,255,.12), transparent 70%)"></div>
+  <div class="max-w-3xl mx-auto px-6 py-24 md:py-32 text-center">
+    <h2 class="reveal text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">Most tools manage work.<br/><span class="grad">Closer closes work.</span></h2>
+    <p class="reveal d1 text-mut text-lg mt-6">Paste a ticket. Click Analyze. Review the plan. Ship faster.</p>
+    <a href="index.html" class="reveal d2 inline-block mt-8 text-base font-semibold text-white px-8 py-4 rounded-xl gradbg hover:brightness-110 transition shadow-lg">Launch Interactive Demo →</a>
+    <!-- live board mock -->
+    <div class="reveal d3 mt-14 bg-white border border-line rounded-2xl p-4 shadow-xl text-left max-w-xl mx-auto">
+      <div class="flex items-center gap-2 pb-3 border-b border-line mb-2">
+        <span class="w-5 h-5 rounded grid place-items-center text-white text-[10px] font-bold" style="background:linear-gradient(135deg,#7b68ee,#49ccf9)">cu</span>
+        <span class="text-sm font-bold">ClickUp</span><span class="text-mut text-sm">· Engineering / Onboarding</span>
+        <span class="ml-auto text-[11px] text-ok flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-ok"></span>Pushed by Closer</span>
+      </div>
+      <div id="board" class="space-y-1.5"></div>
+    </div>
+    <div class="reveal d4 mt-7 inline-flex items-center gap-2 text-sm font-semibold text-ok bg-ok/10 border border-ok/20 rounded-full px-4 py-2 pop">✓ Ready for Development</div>
+  </div>
+</section>
+
+</main>
+
+<footer class="border-t border-line">
+  <div class="max-w-6xl mx-auto px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-mut">
+    <div class="flex items-center gap-2"><span class="w-6 h-6 rounded-lg grid place-items-center text-white text-xs font-bold gradbg">✦</span><span class="font-semibold text-gray-900">Closer</span><span>— the agentic work OS</span></div>
+    <div>Built for the multi-agent hackathon · <a href="index.html" class="text-acc font-medium hover:underline">Open the demo</a></div>
+  </div>
+</footer>
+
+<script>
+/* ----- data ----- */
+const AGENTS=[
+  {ic:"◎",name:"Intake Agent",p:"Understands goals and identifies missing information.",out:"Goal set · 67% confidence · 4 gaps found"},
+  {ic:"?",name:"Clarification Agent",p:"Turns ambiguity into precise questions.",out:"3 clarifying questions drafted"},
+  {ic:"⇆",name:"Stakeholder Agent",p:"Finds the right owners and reaches out.",out:"Slack · ClickUp · Email dispatched"},
+  {ic:"⌕",name:"Research Agent",p:"Collects feedback, analytics, and history.",out:"16 complaints · dropoff at step 3"},
+  {ic:"⚲",name:"Dependency Agent",p:"Finds blockers before work begins.",out:"AUTH-204 · ANALYTICS-17 · risk medium"},
+  {ic:"▤",name:"Planning Agent",p:"Converts research into actionable work.",out:"Epic + 5 subtasks generated"},
+  {ic:"⚙",name:"Execution Agent",p:"Produces the developer handoff.",out:"Brief · Cursor prompt · GitHub issues"},
+  {ic:"✦",name:"Closer Agent",p:"Follows up until work can move forward.",out:"24h follow-up sent automatically"},
+];
+const STATES=[["Completed","#059669"],["Completed","#059669"],["Waiting","#d97706"],["Completed","#059669"],["Blocked","#e11d48"],["Completed","#059669"],["Completed","#059669"],["Running","#0891b2"]];
+
+/* agent flow chips */
+const flow=document.getElementById("flow");
+AGENTS.forEach((a,i)=>{
+  const chip=document.createElement("div");
+  chip.className="flex items-center gap-2";
+  chip.innerHTML=`<div class="flex items-center gap-2 bg-ink border border-line rounded-xl px-3.5 py-2.5">
+      <span class="w-7 h-7 rounded-lg grid place-items-center text-acc bg-acc/10 text-sm">${a.ic}</span>
+      <span class="text-sm font-medium text-gray-900">${a.name.replace(" Agent","")}</span>
+    </div>${i<AGENTS.length-1?'<span class="text-mut">→</span>':''}`;
+  flow.appendChild(chip);
+});
+
+/* agent grid */
+const grid=document.getElementById("agentGrid");
+AGENTS.forEach((a,i)=>{
+  const [st,col]=STATES[i];
+  const el=document.createElement("div");
+  el.className="reveal card-hover bg-white border border-line rounded-2xl p-5";
+  el.style.transitionDelay=(i%4*0.06)+"s";
+  el.innerHTML=`
+    <div class="flex items-start justify-between">
+      <span class="w-10 h-10 rounded-xl grid place-items-center text-acc bg-acc/10 text-lg">${a.ic}</span>
+      <span class="flex items-center gap-1.5 text-[11px]" style="color:${col}"><span class="w-1.5 h-1.5 rounded-full ${st==='Running'||st==='Waiting'?'blink':''}" style="background:${col}"></span>${st}</span>
+    </div>
+    <div class="mt-3 text-sm font-semibold text-gray-900">${a.name}</div>
+    <div class="text-[13px] text-mut mt-1 leading-snug">${a.p}</div>
+    <div class="mt-3 pt-3 border-t border-line">
+      <div class="text-[10px] uppercase tracking-wide text-mut mb-1">Example output</div>
+      <div class="text-[12px] text-gray-700 mono leading-snug">${a.out}</div>
+    </div>`;
+  grid.appendChild(el);
+});
+
+/* live board population */
+const BOARD=[
+  ["EPIC","ONB-100","Improve onboarding completion","#6d4aff"],
+  ["↳","ONB-101","Add onboarding progress indicator","#0891b2"],
+  ["↳","ONB-102","Simplify registration form","#0891b2"],
+  ["↳","ONB-103","Rewrite onboarding copy","#0891b2"],
+  ["↳","ONB-104","Emit funnel analytics events","#0891b2"],
+  ["↳","ONB-105","A/B experiment: new vs control","#0891b2"],
+];
+let boardStarted=false;
+function fillBoard(){
+  if(boardStarted)return; boardStarted=true;
+  const board=document.getElementById("board");
+  BOARD.forEach((r,i)=>setTimeout(()=>{
+    const row=document.createElement("div");
+    const epic=r[0]==="EPIC";
+    row.className="pop flex items-center gap-2 rounded-lg px-3 py-2 "+(epic?"bg-acc/[0.05]":"hover:bg-ink");
+    row.innerHTML=`${epic?'<span class="text-[10px] px-1.5 py-0.5 rounded bg-acc/15 text-acc font-semibold">EPIC</span>':'<span class="text-mut pl-3">↳</span>'}
+      <span class="mono text-[11px] text-mut">${r[1]}</span>
+      <span class="text-sm ${epic?'font-semibold':''} text-gray-900 flex-1 truncate">${r[2]}</span>
+      <span class="text-[10px] text-ok bg-ok/10 border border-ok/20 rounded px-1.5 py-0.5">+ created</span>`;
+    board.appendChild(row);
+  }, i*420));
+}
+
+/* scroll reveal */
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");if(e.target.id==="board")fillBoard();io.unobserve(e.target);}});},{threshold:.15});
+document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
+io.observe(document.getElementById("board"));
+</script>
+</body>
+</html>
