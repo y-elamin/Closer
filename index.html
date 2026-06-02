@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Closer — The agentic work OS</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: '#f6f6fa',
+          panel: '#ffffff',
+          panel2: '#f1f1f6',
+          line: '#e5e5ee',
+          mut: '#71717f',
+          acc: '#6d4aff',
+          acc2: '#0891b2',
+          ok: '#059669',
+          warn: '#d97706',
+          danger: '#e11d48',
+        },
+        fontFamily: { sans: ['Inter','ui-sans-serif','system-ui','-apple-system','Segoe UI','Roboto','sans-serif'] },
+      }
+    }
+  }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { color-scheme: light; }
+  html,body,#root{height:100%;}
+  body{background:radial-gradient(1200px 600px at 80% -10%, rgba(124,92,255,.10), transparent 60%),radial-gradient(900px 500px at -10% 20%, rgba(8,145,178,.07), transparent 55%),#f6f6fa;font-family:Inter,sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .scroll::-webkit-scrollbar{width:8px;height:8px}
+  .scroll::-webkit-scrollbar-thumb{background:#d4d4de;border-radius:8px}
+  .scroll::-webkit-scrollbar-track{background:transparent}
+  @keyframes pulse2{0%,100%{opacity:1}50%{opacity:.35}}
+  .blink{animation:pulse2 1.1s ease-in-out infinite}
+  @keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .fadeup{animation:fadeup .35s ease both}
+  @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+  .shimmer{background:linear-gradient(90deg,#ececf2 25%,#f6f6fa 50%,#ececf2 75%);background-size:200% 100%;animation:shimmer 1.4s linear infinite}
+  .glow{box-shadow:0 0 0 1px rgba(124,92,255,.30),0 0 40px -10px rgba(124,92,255,.30)}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .spin{animation:spin .9s linear infinite}
+</style>
+</head>
+<body class="text-gray-800">
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const {useState,useEffect,useRef,useCallback} = React;
+
+/* ----------------------------- Sample data ----------------------------- */
+const TICKET = {
+  id: "ENG-482",
+  title: "Improve onboarding experience",
+  desc: "Customers are complaining onboarding is confusing. Can someone improve it?",
+  author: "Maria (PM)",
+  created: "2 min ago",
+  priority: "Unspecified",
+};
+
+const AGENTS = [
+  {
+    key:"intake", name:"Intake Agent", icon:"◎", purpose:"Understands the task",
+    logs:["Parsing ticket ENG-482…","Extracting intent from free text…","Scoring completeness…","Identifying stakeholders…"],
+    render:(d)=>(<div className="space-y-3">
+      <Row k="Goal" v="Improve onboarding completion" />
+      <div><div className="text-mut text-xs mb-1">Confidence</div><Confidence v={67}/></div>
+      <div><div className="text-mut text-xs mb-1.5">Missing information</div>
+        <div className="flex flex-wrap gap-1.5">{["Current completion rate","Main dropoff point","Target audience","Existing designs"].map(x=><Chip key={x} tone="warn">{x}</Chip>)}</div></div>
+      <div><div className="text-mut text-xs mb-1.5">Stakeholders</div>
+        <div className="flex flex-wrap gap-1.5">{["Product Manager","Analytics","Design"].map(x=><Chip key={x}>{x}</Chip>)}</div></div>
+    </div>)
+  },
+  {
+    key:"clarify", name:"Clarification Agent", icon:"?", purpose:"Identifies the gaps",
+    logs:["Diffing intent vs. provided context…","Generating clarifying questions…","Drafting requests…"],
+    render:()=>(<ol className="space-y-2">{[
+      "What is the current onboarding completion rate?",
+      "Where is the biggest dropoff in the funnel?",
+      "Are there existing redesign concepts or Figma files?",
+    ].map((q,i)=>(<li key={i} className="flex gap-2 text-sm"><span className="text-acc font-semibold">Q{i+1}</span><span className="text-gray-700">{q}</span></li>))}</ol>)
+  },
+  {
+    key:"stake", name:"Stakeholder Agent", icon:"⇆", purpose:"Routes to the right people",
+    logs:["Resolving owners from org graph…","Opening Slack channel #analytics…","Dispatching ClickUp comment…","Queueing email to Design…"],
+    render:()=>(<div className="space-y-2.5">
+      <Integ app="Slack" to="#analytics" body={["Completion rate","Funnel breakdown","User segments"]} status="Awaiting response"/>
+      <Integ app="ClickUp" to="Design team" body={["Existing onboarding mocks?"]} status="Read"/>
+      <Integ app="Email" to="Product (Maria)" body={["Confirm target audience"]} status="Sent"/>
+    </div>)
+  },
+  {
+    key:"research", name:"Research Agent", icon:"⌕", purpose:"Gathers the context",
+    logs:["Searching past tickets…","Reading 16 support threads…","Pulling Amplitude funnel…","Summarizing themes…"],
+    render:()=>(<div className="space-y-3">
+      <div><div className="text-mut text-xs mb-1.5">Customers mention</div>
+        <ul className="space-y-1 text-sm text-gray-700">{["Too many steps","Confusing account creation","No progress indication"].map(x=><li key={x} className="flex gap-2"><span className="text-acc2">›</span>{x}</li>)}</ul></div>
+      <Row k="Most dropoff" v="Step 3 — Account creation (41%)" tone="danger"/>
+      <Row k="Sources" v="16 tickets · 1 funnel · 4 reviews"/>
+    </div>)
+  },
+  {
+    key:"deps", name:"Dependency Agent", icon:"⚲", purpose:"Surfaces the blockers",
+    logs:["Mapping linked issues…","Checking auth migration status…","Assessing risk…"],
+    render:()=>(<div className="space-y-2">
+      <DepRow id="AUTH-204" owner="Ahmed" note="OAuth refactor in progress"/>
+      <DepRow id="ANALYTICS-17" owner="Sarah" note="Funnel events missing"/>
+      <Row k="Risk level" v="Medium" tone="warn"/>
+    </div>)
+  },
+  {
+    key:"plan", name:"Planning Agent", icon:"▤", purpose:"Turns research into work",
+    logs:["Synthesizing findings…","Drafting epic…","Decomposing into subtasks…","Estimating effort…"],
+    render:()=>(<div className="space-y-2">
+      <div className="text-xs text-mut">Epic</div>
+      <div className="text-sm font-semibold text-gray-900">Improve onboarding completion</div>
+      <ol className="space-y-1.5 mt-1">{[
+        ["Add progress indicator","S"],["Simplify registration form","M"],["Improve onboarding copy","S"],["Add analytics events","M"],["Create A/B experiment","M"],
+      ].map(([t,e],i)=>(<li key={i} className="flex items-center justify-between text-sm bg-panel2 border border-line rounded-lg px-3 py-2">
+        <span className="text-gray-700"><span className="text-mut mono mr-2">{i+1}.</span>{t}</span><Chip>{e}</Chip></li>))}</ol>
+    </div>)
+  },
+  {
+    key:"exec", name:"Execution Agent", icon:"⚙", purpose:"Produces the dev handoff",
+    logs:["Assembling implementation brief…","Generating Cursor prompt…","Opening GitHub issues…","Packaging handoff…"],
+    render:()=>(<div className="space-y-3">
+      <div className="grid grid-cols-2 gap-2 text-sm">
+        <Brief h="Frontend" items={["Progress component","Form redesign"]}/>
+        <Brief h="Backend" items={["Event tracking"]}/>
+        <Brief h="Analytics" items={["Funnel dashboard"]}/>
+        <Brief h="Testing" items={["A/B framework"]}/>
+      </div>
+      <div className="flex flex-wrap gap-1.5 pt-1">{["Cursor Prompt","GitHub Issues ×5","Dev Handoff"].map(x=><Chip key={x} tone="ok">✓ {x}</Chip>)}</div>
+    </div>)
+  },
+  {
+    key:"closer", name:"Closer Agent", icon:"✦", purpose:"Chases until it's done",
+    logs:["Watching open requests…","Analytics silent for 24h…","Sending follow-up…","Escalation scheduled…"],
+    render:()=>(<div className="space-y-2">
+      <Row k="No response" v="Analytics Team" tone="danger"/>
+      <Row k="Time waiting" v="24h"/>
+      <Row k="Action" v="Follow-up sent automatically" tone="ok"/>
+      <div className="text-xs text-mut pt-1">Will escalate to manager in 8h if no reply.</div>
+    </div>)
+  },
+];
+
+/* --------------------------- Small components --------------------------- */
+const Row=({k,v,tone})=>{const c={ok:"text-ok",warn:"text-warn",danger:"text-danger"}[tone]||"text-gray-900";
+  return <div className="flex items-baseline justify-between gap-3"><span className="text-mut text-xs">{k}</span><span className={"text-sm font-medium text-right "+c}>{v}</span></div>;}
+const Chip=({children,tone})=>{const m={warn:"bg-warn/10 text-warn border-warn/20",ok:"bg-ok/10 text-ok border-ok/20"}[tone]||"bg-acc/10 text-acc border-acc/20";
+  return <span className={"text-[11px] px-2 py-0.5 rounded-full border "+m}>{children}</span>;}
+const Confidence=({v})=>(<div><div className="h-1.5 bg-panel2 rounded-full overflow-hidden border border-line"><div className="h-full rounded-full" style={{width:v+"%",background:"linear-gradient(90deg,#7c5cff,#22d3ee)"}}/></div><div className="text-right text-xs text-mut mt-1">{v}%</div></div>);
+const Integ=({app,to,body,status})=>{const ic={Slack:"#",ClickUp:"◳",Email:"✉"}[app];
+  return <div className="bg-panel2 border border-line rounded-lg p-2.5">
+    <div className="flex items-center justify-between"><span className="text-xs font-semibold text-gray-200">{ic} {app} → {to}</span><span className={"text-[10px] px-1.5 py-0.5 rounded "+(status==="Awaiting response"?"bg-warn/10 text-warn":"bg-ok/10 text-ok")}>{status}</span></div>
+    <div className="text-[11px] text-mut mt-1">Need: {body.join(" · ")}</div></div>;}
+const DepRow=({id,owner,note})=>(<div className="flex items-center justify-between bg-panel2 border border-line rounded-lg px-3 py-2">
+  <div><div className="text-sm mono text-gray-900">{id}</div><div className="text-[11px] text-mut">{note}</div></div>
+  <span className="text-xs text-mut">@{owner}</span></div>);
+const Brief=({h,items})=>(<div className="bg-panel2 border border-line rounded-lg p-2"><div className="text-[11px] text-acc2 font-semibold mb-1">{h}</div><ul className="space-y-0.5">{items.map(i=><li key={i} className="text-[12px] text-gray-700">• {i}</li>)}</ul></div>);
+
+const STATUS={
+  idle:{t:"Idle",c:"text-mut",d:"bg-mut"},
+  running:{t:"Running",c:"text-acc2",d:"bg-acc2 blink"},
+  waiting:{t:"Waiting",c:"text-warn",d:"bg-warn blink"},
+  blocked:{t:"Blocked",c:"text-danger",d:"bg-danger"},
+  done:{t:"Completed",c:"text-ok",d:"bg-ok"},
+};
+
+/* ------------------------------- App ----------------------------------- */
+function App(){
+  const [phase,setPhase]=useState("intake"); // intake | running | done
+  const [tab,setTab]=useState("agents");     // agents | timeline | deliverable
+  const [text,setText]=useState(TICKET.desc);
+  const [states,setStates]=useState(()=>Object.fromEntries(AGENTS.map(a=>[a.key,{status:"idle",logs:[],open:false}])));
+  const [events,setEvents]=useState([]);
+  const [done,setDone]=useState(false);
+  const timers=useRef([]);
+
+  const reset=()=>{timers.current.forEach(clearTimeout);timers.current=[];
+    setPhase("intake");setTab("agents");setText(TICKET.desc);setDone(false);setEvents([]);
+    setStates(Object.fromEntries(AGENTS.map(a=>[a.key,{status:"idle",logs:[],open:false}])));};
+
+  const now=(i)=>"09:0"+(i+1);
+
+  const run=()=>{
+    setPhase("running");setTab("agents");
+    let t=0;const STEP=1300;
+    AGENTS.forEach((a,i)=>{
+      // start
+      timers.current.push(setTimeout(()=>{
+        setStates(s=>({...s,[a.key]:{...s[a.key],status:"running",open:true}}));
+        addEvent(now(i),a.name,"started analysis");
+      }, t+=400));
+      // stream logs
+      a.logs.forEach((l,li)=>{
+        timers.current.push(setTimeout(()=>{
+          setStates(s=>({...s,[a.key]:{...s[a.key],logs:[...s[a.key].logs,l]}}));
+        }, t+ (li+1)*220));
+      });
+      // intermediate state for some
+      const interim = a.key==="closer"?"waiting":a.key==="deps"?"blocked":null;
+      if(interim){timers.current.push(setTimeout(()=>{
+        setStates(s=>({...s,[a.key]:{...s[a.key],status:interim}}));
+      }, t+ a.logs.length*220+150));}
+      // finish
+      timers.current.push(setTimeout(()=>{
+        setStates(s=>({...s,[a.key]:{...s[a.key],status:"done"}}));
+        addEvent(now(i),a.name,doneMsg(a.key));
+      }, t+= a.logs.length*220+550));
+    });
+    timers.current.push(setTimeout(()=>{setDone(true);}, t+600));
+  };
+
+  const addEvent=(time,who,what)=>setEvents(e=>[...e,{time,who,what,id:e.length}]);
+  const doneMsg=(k)=>({
+    intake:"scored ticket 67% complete · 4 gaps",
+    clarify:"generated 3 clarifying questions",
+    stake:"contacted Analytics, Design & PM",
+    research:"found 16 complaints · dropoff at step 3",
+    deps:"mapped 2 dependencies · risk medium",
+    plan:"generated epic + 5 subtasks",
+    exec:"created brief, Cursor prompt & 5 GitHub issues",
+    closer:"sent 24h follow-up to Analytics",
+  }[k]);
+
+  const counts=AGENTS.reduce((a,x)=>{const st=states[x.key].status;a[st]=(a[st]||0)+1;return a;},{});
+
+  return (
+    <div className="h-full flex flex-col">
+      <Header phase={phase} onReset={reset}/>
+      {phase==="intake"
+        ? <Intake text={text} setText={setText} onRun={run}/>
+        : <div className="flex-1 min-h-0 flex flex-col">
+            <Tabs tab={tab} setTab={setTab} done={done} counts={counts}/>
+            <div className="flex-1 min-h-0 overflow-hidden">
+              {tab==="agents" && <AgentGrid states={states} setStates={setStates}/>}
+              {tab==="timeline" && <Timeline events={events} running={!done}/>}
+              {tab==="deliverable" && (done? <Deliverable/> : <Pending/>)}
+            </div>
+          </div>}
+      {done && phase==="running" && <DoneBar onView={()=>setTab("deliverable")}/>}
+    </div>
+  );
+}
+
+function Header({phase,onReset}){
+  return <header className="flex items-center justify-between px-6 h-14 border-b border-line bg-panel/60 backdrop-blur">
+    <div className="flex items-center gap-2.5">
+      <div className="w-7 h-7 rounded-lg grid place-items-center text-white font-bold" style={{background:"linear-gradient(135deg,#7c5cff,#22d3ee)"}}>✦</div>
+      <div className="leading-tight"><div className="font-bold tracking-tight">Closer</div><div className="text-[10px] text-mut -mt-0.5">agentic work OS</div></div>
+    </div>
+    <div className="hidden md:block text-xs text-mut">Turns ambiguous work into finished work</div>
+    {phase!=="intake"
+      ? <button onClick={onReset} className="text-xs px-3 py-1.5 rounded-lg border border-line hover:bg-panel2 transition">↺ New ticket</button>
+      : <div className="text-xs text-mut">ENG · workspace</div>}
+  </header>;
+}
+
+function Intake({text,setText,onRun}){
+  return <div className="flex-1 min-h-0 grid md:grid-cols-2 gap-px bg-line overflow-auto scroll">
+    <div className="bg-ink p-8 md:p-12 flex flex-col justify-center">
+      <div className="max-w-md">
+        <div className="text-acc text-xs font-semibold tracking-widest mb-3">SCREEN 1 · TICKET INTAKE</div>
+        <h1 className="text-3xl font-extrabold tracking-tight leading-tight">A vague ticket goes in.<br/>A dev-ready plan comes out.</h1>
+        <p className="text-mut mt-3 text-sm">Paste a messy ticket. Eight agents coordinate stakeholders, research, dependencies and planning — so your team doesn't have to.</p>
+        <div className="mt-6 bg-panel border border-line rounded-xl p-4">
+          <div className="flex items-center justify-between mb-2"><span className="mono text-xs text-mut">{TICKET.id}</span><span className="text-[10px] px-2 py-0.5 rounded-full bg-warn/10 text-warn border border-warn/20">Priority: {TICKET.priority}</span></div>
+          <input className="w-full bg-transparent text-lg font-semibold outline-none" defaultValue={TICKET.title}/>
+          <textarea value={text} onChange={e=>setText(e.target.value)} rows={3} className="w-full bg-panel2 border border-line rounded-lg p-3 mt-2 text-sm text-gray-700 outline-none focus:border-acc/50 resize-none scroll"/>
+          <div className="text-[11px] text-mut mt-2">Created by {TICKET.author} · {TICKET.created}</div>
+        </div>
+        <button onClick={onRun} className="mt-5 w-full py-3 rounded-xl font-semibold text-white glow hover:brightness-110 transition" style={{background:"linear-gradient(135deg,#7c5cff,#22d3ee)"}}>Analyze Ticket →</button>
+        <div className="text-center text-[11px] text-mut mt-2">You paste & click once. Everything else is automatic.</div>
+      </div>
+    </div>
+    <div className="bg-panel p-8 md:p-12 flex flex-col justify-center">
+      <div className="text-mut text-xs font-semibold tracking-widest mb-4">WHAT HAPPENS NEXT</div>
+      <div className="space-y-3">
+        {AGENTS.map((a,i)=>(<div key={a.key} className="flex items-center gap-3 fadeup" style={{animationDelay:(i*60)+"ms"}}>
+          <div className="w-9 h-9 rounded-lg bg-panel2 border border-line grid place-items-center text-acc">{a.icon}</div>
+          <div><div className="text-sm font-medium text-gray-900">{a.name}</div><div className="text-[11px] text-mut">{a.purpose}</div></div>
+        </div>))}
+      </div>
+    </div>
+  </div>;
+}
+
+function Tabs({tab,setTab,done,counts}){
+  const T=[["agents","Agent Command Center"],["timeline","Activity Timeline"],["deliverable","Final Deliverable"]];
+  return <div className="flex items-center justify-between px-6 border-b border-line bg-panel/40">
+    <div className="flex gap-1">{T.map(([k,l])=>(
+      <button key={k} onClick={()=>setTab(k)} className={"relative px-3 py-3 text-sm transition "+(tab===k?"text-white":"text-mut hover:text-gray-700")}>
+        {l}{k==="deliverable"&&done&&<span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-ok align-middle"/>}
+        {tab===k&&<span className="absolute left-3 right-3 -bottom-px h-0.5 bg-acc rounded"/>}
+      </button>))}</div>
+    <div className="hidden md:flex items-center gap-3 text-[11px]">
+      {["running","waiting","blocked","done"].map(s=>counts[s]?(<span key={s} className="flex items-center gap-1.5"><span className={"w-1.5 h-1.5 rounded-full "+STATUS[s].d}/><span className="text-mut">{STATUS[s].t} {counts[s]}</span></span>):null)}
+    </div>
+  </div>;
+}
+
+function AgentGrid({states,setStates}){
+  return <div className="h-full overflow-auto scroll p-5">
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {AGENTS.map((a,i)=><AgentCard key={a.key} a={a} st={states[a.key]} idx={i}
+        toggle={()=>setStates(s=>({...s,[a.key]:{...s[a.key],open:!s[a.key].open}}))}/>)}
+    </div>
+  </div>;
+}
+
+function AgentCard({a,st,idx,toggle}){
+  const S=STATUS[st.status];
+  const logRef=useRef();
+  useEffect(()=>{if(logRef.current)logRef.current.scrollTop=logRef.current.scrollHeight;},[st.logs]);
+  const active=st.status==="running";
+  return <div className={"rounded-xl border bg-panel flex flex-col fadeup transition "+(active?"border-acc/40 glow":"border-line")} style={{animationDelay:(idx*50)+"ms"}}>
+    <div className="flex items-start gap-3 p-3.5 border-b border-line">
+      <div className={"w-9 h-9 rounded-lg grid place-items-center shrink-0 "+(st.status==="done"?"bg-ok/10 text-ok":active?"bg-acc/10 text-acc":"bg-panel2 text-mut")}>{active?<span className="spin inline-block">◴</span>:a.icon}</div>
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-semibold text-gray-900 truncate">{a.name}</div>
+        <div className="text-[11px] text-mut truncate">{a.purpose}</div>
+      </div>
+      <span className={"flex items-center gap-1.5 text-[11px] "+S.c}><span className={"w-1.5 h-1.5 rounded-full "+S.d}/>{S.t}</span>
+    </div>
+    <div ref={logRef} className="px-3.5 py-2 max-h-20 overflow-auto scroll bg-ink/40 border-b border-line">
+      {st.logs.length===0 && st.status==="idle" && <div className="text-[11px] text-mut/60 mono py-1">waiting to start…</div>}
+      {st.logs.map((l,i)=><div key={i} className="text-[11px] text-mut mono fadeup">› {l}</div>)}
+    </div>
+    <div className="p-3.5 flex-1">
+      {st.status==="idle"
+        ? <div className="space-y-2">{[...Array(3)].map((_,i)=><div key={i} className="h-3 rounded shimmer" style={{width:(90-i*18)+"%"}}/>)}</div>
+        : (st.logs.length < a.logs.length && st.status!=="done")
+          ? <div className="space-y-2">{[...Array(3)].map((_,i)=><div key={i} className="h-3 rounded shimmer" style={{width:(90-i*18)+"%"}}/>)}</div>
+          : <div className="fadeup">{a.render()}</div>}
+    </div>
+  </div>;
+}
+
+function Timeline({events,running}){
+  const ref=useRef();
+  useEffect(()=>{if(ref.current)ref.current.scrollTop=ref.current.scrollHeight;},[events]);
+  return <div ref={ref} className="h-full overflow-auto scroll p-6">
+    <div className="max-w-2xl mx-auto">
+      <div className="text-mut text-xs font-semibold tracking-widest mb-5">CHRONOLOGICAL ACTIVITY FEED</div>
+      <div className="relative pl-6">
+        <div className="absolute left-[7px] top-1 bottom-1 w-px bg-line"/>
+        {events.map((e)=>(<div key={e.id} className="relative mb-4 fadeup">
+          <div className="absolute -left-6 top-1 w-3.5 h-3.5 rounded-full bg-acc/20 border-2 border-acc"/>
+          <div className="flex items-baseline gap-3">
+            <span className="mono text-xs text-mut">{e.time}</span>
+            <span className="text-sm"><span className="font-semibold text-gray-900">{e.who}</span> <span className="text-gray-500">{e.what}</span></span>
+          </div>
+        </div>))}
+        {running && <div className="relative fadeup"><div className="absolute -left-6 top-1 w-3.5 h-3.5 rounded-full bg-acc blink"/>
+          <span className="text-xs text-mut">agents coordinating…</span></div>}
+      </div>
+    </div>
+  </div>;
+}
+
+function Pending(){
+  return <div className="h-full grid place-items-center text-center px-6">
+    <div><div className="text-4xl mb-3 spin inline-block">◴</div><div className="text-mut text-sm">Agents are still working. The deliverable assembles automatically when they finish.</div></div>
+  </div>;
+}
+
+function DoneBar({onView}){
+  return <div className="fadeup border-t border-line bg-panel/80 backdrop-blur px-6 py-3 flex items-center justify-between">
+    <div className="flex items-center gap-2 text-sm"><span className="text-ok">✓</span><span className="text-gray-200">All 8 agents finished. Ambiguous ticket → execution plan.</span></div>
+    <button onClick={onView} className="text-sm px-4 py-2 rounded-lg font-semibold text-white" style={{background:"linear-gradient(135deg,#7c5cff,#22d3ee)"}}>View deliverable →</button>
+  </div>;
+}
+
+function Deliverable(){
+  return <div className="h-full overflow-auto scroll p-6">
+    <div className="max-w-4xl mx-auto">
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="rounded-xl border border-line bg-panel p-5">
+          <div className="text-xs text-danger font-semibold tracking-widest mb-3">BEFORE</div>
+          <div className="mono text-xs text-mut mb-2">{TICKET.id}</div>
+          <div className="text-lg font-semibold text-gray-700">Improve onboarding.</div>
+          <div className="text-sm text-mut mt-2">{TICKET.desc}</div>
+          <div className="mt-4 flex flex-wrap gap-1.5">{["No owners","No data","No scope","No plan"].map(x=><span key={x} className="text-[11px] px-2 py-0.5 rounded-full bg-danger/10 text-danger border border-danger/20">{x}</span>)}</div>
+        </div>
+        <div className="rounded-xl border border-ok/30 bg-panel p-5 glow" style={{boxShadow:"0 0 40px -12px rgba(52,211,153,.4)"}}>
+          <div className="text-xs text-ok font-semibold tracking-widest mb-3">AFTER</div>
+          <div className="text-lg font-semibold text-gray-900">Complete execution plan</div>
+          <ul className="mt-3 space-y-1.5 text-sm text-gray-700">
+            {["Stakeholders identified & contacted","Clarifying questions sent","Research synthesized (16 complaints)","2 dependencies mapped","Epic + 5 subtasks generated","Implementation brief created","5 GitHub issues opened","Cursor prompt ready"].map(x=>(
+              <li key={x} className="flex gap-2"><span className="text-ok">✓</span>{x}</li>))}
+          </ul>
+          <div className="mt-4 inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg bg-ok/10 text-ok border border-ok/20 font-semibold">● Ready for development</div>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-4 gap-3 mt-4">
+        <Stat n="8" l="agents coordinated"/>
+        <Stat n="3" l="integrations actioned"/>
+        <Stat n="0" l="meetings required"/>
+        <Stat n="~2 days" l="coordination saved"/>
+      </div>
+
+      <div className="rounded-xl border border-line bg-panel p-5 mt-4">
+        <div className="flex items-center justify-between mb-3"><div className="text-sm font-semibold">Developer handoff</div>
+          <div className="flex gap-2">{["Copy Cursor Prompt","Export GitHub Issues"].map(x=><button key={x} className="text-xs px-3 py-1.5 rounded-lg border border-line hover:bg-panel2 transition">{x}</button>)}</div></div>
+        <pre className="mono text-[11px] text-gray-500 bg-ink/60 border border-line rounded-lg p-3 overflow-auto scroll whitespace-pre-wrap">{`# Cursor Prompt — ENG-482 Improve onboarding completion
+Context: dropoff 41% at step 3 (account creation). 16 user complaints: too many steps, confusing signup, no progress indicator.
+Tasks:
+1. Add <OnboardingProgress/> stepper component (Frontend)
+2. Simplify registration form — collapse to 2 fields + social auth (Frontend, blocked by AUTH-204 @Ahmed)
+3. Rewrite onboarding copy for clarity (Content)
+4. Emit funnel analytics events per step (Backend, ANALYTICS-17 @Sarah)
+5. Wire A/B experiment: new flow vs control (Testing)
+Acceptance: completion rate +10pp, step-3 dropoff < 25%.`}</pre>
+      </div>
+
+      <div className="text-center mt-6 mb-2">
+        <div className="text-lg font-bold tracking-tight">Most tools manage work. <span style={{background:"linear-gradient(90deg,#7c5cff,#22d3ee)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Closer closes work.</span></div>
+      </div>
+    </div>
+  </div>;
+}
+const Stat=({n,l})=>(<div className="rounded-xl border border-line bg-panel p-4 text-center"><div className="text-2xl font-extrabold text-gray-900">{n}</div><div className="text-[11px] text-mut mt-0.5">{l}</div></div>);
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
